@@ -55,17 +55,81 @@ GLfloat xC = 10.0, yC = 10.0, zC = 10.0;		// Mundo  (unidades mundo)
 
 // VISUALIZATION AND OBSERVER
 GLfloat rVisao = 10, aVisao = 0.5 * PI, incVisao = 0.05;
-GLfloat obsP[] = { rVisao * cos(aVisao), 3.0, rVisao * sin(aVisao) };
-GLfloat obsT[] = { obsP[0] - rVisao * cos(aVisao), obsP[1], obsP[2] - rVisao * sin(aVisao) };
+GLfloat obsP[] = {rVisao * cos(aVisao), 3.0, rVisao * sin(aVisao)};
+GLfloat obsT[] = {obsP[0] - rVisao * cos(aVisao), obsP[1], obsP[2] - rVisao * sin(aVisao)};
 GLfloat angZoom = 90;
 GLfloat incZoom = 3;
 
+//TEXTURES
+GLuint   texture[5];
+RgbImage imag;
+
 // INIT
+void initTextures() {
+
+	// PAREDE
+	glGenTextures(1, &texture[0]);
+	glBindTexture(GL_TEXTURE_2D, texture[0]);
+	imag.LoadBmpFile("pedra.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3,
+		imag.GetNumCols(),
+		imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		imag.ImageData());
+
+	// PORTA 
+	glGenTextures(1, &texture[1]);
+	glBindTexture(GL_TEXTURE_2D, texture[1]);
+	imag.LoadBmpFile("madeira.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3,
+		imag.GetNumCols(),
+		imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		imag.ImageData());
+
+	// TAPETE
+	glGenTextures(1, &texture[2]);
+	glBindTexture(GL_TEXTURE_2D, texture[2]);
+	imag.LoadBmpFile("colorida.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3,
+		imag.GetNumCols(),
+		imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		imag.ImageData());
+
+	// CANDEEIRO + MAÇANETA + FERROLHO
+	glGenTextures(1, &texture[3]);
+	glBindTexture(GL_TEXTURE_2D, texture[3]);
+	imag.LoadBmpFile("metal.bmp");
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3,
+		imag.GetNumCols(),
+		imag.GetNumRows(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+		imag.ImageData());
+
+}
 void inicializa(void) {
 
 	glClearColor(WHITE);		// Apagar
-	glEnable(GL_DEPTH_TEST);	// Profundidade
 	glShadeModel(GL_SMOOTH);	// Interpolacao de cores	
+	initTextures();
+	glEnable(GL_DEPTH_TEST);	// Profundidade
 
 }
 void drawText(char* string, GLfloat x, GLfloat y) {
@@ -106,6 +170,8 @@ void drawObservador() {
 	glPopMatrix();
 }
 void drawCube(float tam, GLfloat color[3]) {
+
+	//glEnable(GL_TEXTURE_2D);
 
 	GLfloat vcube[] = {
 		// Esquerda
@@ -179,11 +245,43 @@ void drawCube(float tam, GLfloat color[3]) {
 			k++;
 		}
 	}
+	GLfloat tcube[] = {
+		// Esquerda
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+		// Direita
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+		// Cima
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+		// Baixo
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+		// Frente
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+		// Trás
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+	};
 
-	GLuint cima[] = { 8, 11, 10,  9 };
-	GLuint baixo[] = { 15, 12, 13, 14 };
 	GLuint esquerda[] = { 0, 1, 2, 3 };
 	GLuint direita[] = { 4, 7, 6, 5 };
+	GLuint cima[] = { 8, 11, 10,  9 };
+	GLuint baixo[] = { 15, 12, 13, 14 };
 	GLuint frente[] = { 16, 19, 18, 17 };
 	GLuint tras[] = { 20, 23, 22, 21 };
 
@@ -196,12 +294,23 @@ void drawCube(float tam, GLfloat color[3]) {
 	glColorPointer(3, GL_FLOAT, 0, ccube);
 	glEnableClientState(GL_COLOR_ARRAY);
 
+	glTexCoordPointer(2, GL_FLOAT, 0, tcube);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	//glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, cima);
+	//glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, baixo);
+	//glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, frente);
+	//glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, tras);
+	//glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, esquerda);
+	//glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, direita);
+
+	//glDisable(GL_TEXTURE_2D);
 
 }
 void drawMacaneta() {
@@ -236,9 +345,9 @@ void drawPortaDoCao() {
 }
 void drawCuboDeBaixo(float pos_x) {
 	glPushMatrix();
-	glTranslatef(pos_x, DOOR_BOTTOM_SCALE_Y * tam, 0);
-	glScalef(DOOR_BOTTOM_SCALE);
-	drawCube(tam, COR_PORTA);
+		glTranslatef(pos_x, DOOR_BOTTOM_SCALE_Y * tam, 0);
+		glScalef(DOOR_BOTTOM_SCALE);
+		drawCube(tam, COR_PORTA);
 	glPopMatrix();
 }
 void drawParteDeCima() {
@@ -246,55 +355,92 @@ void drawParteDeCima() {
 	glScalef(DOOR_TOP_SCALE);
 	drawCube(tam, COR_PORTA);
 }
-void drawCalco() {
+void drawTapete() {
 	glPushMatrix();
-
+		glTranslatef(tam * DOOR_TOP_SCALE_X, 0, DOOR_BOTTOM_SCALE_Z * 3);
+		glScalef(tam * DOOR_TOP_SCALE_X, trinco_larg, tam * 0.75 * DOOR_TOP_SCALE_X);
+		drawCube(tam, COR_TRINCO);
+	glPopMatrix();
+}
+void drawCandeeiro() {
+	glPushMatrix();
+		glTranslatef(DOOR_TOP_SCALE_X * tam, 2.95 * DOOR_TOP_SCALE_Y * tam, tam * 1.25);
+		glScalef(trinco_larg * 5, trinco_larg * 2, 1.25);
+		drawCube(tam, COR_TRINCO);
 	glPopMatrix();
 }
 void drawTrinco(float comp, float larg) {
-
 	glPushMatrix();
-	glTranslatef(trinco_pos, 1.35 * DOOR_TOP_SCALE_Y * tam, DOOR_TOP_SCALE_Z * tam + larg * tam);
-	glRotatef(trinco_angle, 1.0, 0.0, 0.0);
+		glTranslatef(trinco_pos, 1.35 * DOOR_TOP_SCALE_Y * tam, DOOR_TOP_SCALE_Z * tam + larg * tam);
+		glRotatef(trinco_angle, 1.0, 0.0, 0.0);
 
-	// EXTENSÃO
-	glPushMatrix();
-	glTranslatef(-comp * 0.4125, 0, (comp - larg * 3.25) * tam);
-	glScalef(larg, larg, 0.35);
-	drawCube(tam, COR_CAO);
-	glPopMatrix();
+			// EXTENSÃO
+			glPushMatrix();
+				glTranslatef(-comp * 0.4125, 0, (comp - larg * 3.25) * tam);
+				glScalef(larg, larg, 0.35);
+				drawCube(tam, COR_CAO);
+			glPopMatrix();
 
-	// CABO
-	glPushMatrix();
-	glScalef(comp, larg, larg);
-	drawCube(tam, COR_TRINCO);
-	glPopMatrix();
+			// CABO
+			glPushMatrix();
+				glScalef(comp, larg, larg);
+				drawCube(tam, COR_TRINCO);
+			glPopMatrix();
 	glPopMatrix();
 }
 void drawParede() {
+
 	glPushMatrix();
-	glTranslatef(2 * (DOOR_TOP_SCALE_X + 0.35) * tam, (DOOR_TOP_SCALE_Y + 2) * tam, 0);
-	glScalef(tam, DOOR_BOTTOM_SCALE_Y + DOOR_TOP_SCALE_Y, DOOR_TOP_SCALE_Z);
-	drawCube(tam, COR_PAREDE);
+		glTranslatef((DOOR_TOP_SCALE_X + 0.55) * tam, 2.95 * DOOR_TOP_SCALE_Y * tam, 0);
+		glScalef(DOOR_TOP_SCALE_X + DOOR_TOP_SCALE_Z + 0.15, DOOR_TOP_SCALE_Z, DOOR_TOP_SCALE_Z);
+		drawCube(tam, COR_PAREDE);
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(2 * (DOOR_TOP_SCALE_X + 0.35) * tam, (DOOR_TOP_SCALE_Y + 2.5) * tam, 0);
+		glScalef(tam, DOOR_BOTTOM_SCALE_Y + DOOR_TOP_SCALE_Y + 0.5, DOOR_TOP_SCALE_Z);
+		drawCube(tam, COR_PAREDE);
 	glPopMatrix();
 }
 void drawDoor() {
 
-	// PARTE DE CIMA
-	drawParede();
+	// PAREDE
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture[0]);
+		drawParede();
+	glDisable(GL_TEXTURE_2D);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture[2]);
+		drawTapete();
+	glDisable(GL_TEXTURE_2D);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture[3]);
+		drawCandeeiro();
+	glDisable(GL_TEXTURE_2D);
+
 	glPushMatrix();
-	glRotatef(door_angle, 0.0, 1.0, 0.0);
+		glRotatef(door_angle, 0.0, 1.0, 0.0);
 
-	drawCalco();
-	drawTrinco(trinco_comp, trinco_larg);
-	drawMacaneta();
-	drawPortaDoCao();
-	drawCuboDeBaixo(2 * DOOR_TOP_SCALE_X * tam - DOOR_BOTTOM_SCALE_X * tam);
-	drawCuboDeBaixo(DOOR_BOTTOM_SCALE_X * tam);
-	drawParteDeCima();
+		// TRINCO + MAÇANETA
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, texture[3]);
+			drawTrinco(trinco_comp, trinco_larg);
+			drawMacaneta();
+		glDisable(GL_TEXTURE_2D);
 
+		// transparente
+		drawPortaDoCao();
+
+		// PORTA
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, texture[1]);
+			drawCuboDeBaixo(2 * DOOR_TOP_SCALE_X * tam - DOOR_BOTTOM_SCALE_X * tam);
+			drawCuboDeBaixo(DOOR_BOTTOM_SCALE_X * tam);
+			drawParteDeCima();
+		glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
-
 }
 
 // ANIMATIONS
@@ -415,20 +561,7 @@ void display(void) {
 
 // EVENTS
 void keyboard(unsigned char key, int x, int y) {
-
 	switch (key) {
-		/*
-		case 'A':
-		case 'a':
-			if (door_angle < 90) door_angle += angle_increment; // ABRE A PORTA
-			glutPostRedisplay();
-			break;
-		case 'S':
-		case 's':
-			if(door_angle > - 90) door_angle -= angle_increment; // FECHA A PORTA
-			glutPostRedisplay();
-			break;
-		*/
 	case 'e':
 	case 'E':
 		if (dog_door_angle > -90) dog_door_angle -= angle_increment * 4; // ABRE DOG DOOR
@@ -476,7 +609,6 @@ void keyboard(unsigned char key, int x, int y) {
 		exit(0);
 		break;
 	}
-
 }
 void teclasNotAscii(int key, int x, int y) {
 
