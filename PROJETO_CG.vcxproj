@@ -140,10 +140,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\P4texturasBasico\RgbImage.cpp" />
+    <ClCompile Include="materiais.cpp" />
     <ClCompile Include="PROJETO_CG.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\P4texturasBasico\RgbImage.h" />
+    <ClInclude Include="materiais.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\P4texturasBasico\colorida.bmp" />

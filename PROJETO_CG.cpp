@@ -8,13 +8,13 @@
 
 // SYSTEM COLOR 4F
 #define WHITE		1.0, 1.0, 1.0, 1.0
+#define BLACK		0.0, 0.0, 0.0, 0.0
 
 // COLORS 3F
 #define BLUE		0.0, 0.0, 1.0
 #define RED			1.0, 0.0, 0.0
 #define GREEN		0.0, 1.0, 0.0
 #define YELLOW		1.0, 1.0, 0.0
-#define BLACK		0.0, 0.0, 0.0
 #define BROWN		0.31, 0.16, 0
 
 // MACROS
@@ -47,7 +47,7 @@ static GLfloat COR_PORTA[] = { BROWN };
 static GLfloat COR_CAO[] = { YELLOW };
 static GLfloat COR_MACANETA[] = { GREEN };
 static GLfloat COR_TRINCO[] = { BLUE };
-static GLfloat COR_PAREDE[] = { BLACK };
+static GLfloat COR_PAREDE[] = { BLUE };
 
 // SYSTEM COORDINATES
 GLint wScreen = 800, hScreen = 600;				// janela (pixeis)
@@ -64,14 +64,83 @@ GLfloat incZoom = 3;
 GLuint   texture[5];
 RgbImage imag;
 
+// MATERIAIS
+void initMaterials(int material);
+char Materiais[18][30] = {
+	"Esmerald",  "Jade",  "obsidian",    "Pearl",        "Ruby",
+	"Turquoise", "Brass", "Bronze",      "Chrome",       "Copper",
+	"Gold",      "Silver","blackPlastic","cyankPlastic", "greenPlastic",
+	"redPlastic", "whitePlastic","yellowPlastic" };
+
+// LUZ DIRECIONAL
+
+GLint luzR = 1; // 'R'
+GLint luzG = 1; // 'G'
+GLint luzB = 1; // 'B'
+
+int dia = 0;
+GLfloat intensidade_direc = 0.7;
+GLfloat direcVec[4] = { 0.0, 1.0, 0.0, 0.0 };
+GLfloat direcCorAmb[4] = { 1, 1, 1, 1.0 };
+GLfloat direcCorDif[4] = { luzR, luzG, luzB, 1.0 };
+GLfloat direcCorEsp[4] = { luzR, luzG, luzB, 1.0 };
+GLfloat direcAttCon = 0.5;
+GLfloat direcAttLin = 0.5;
+GLfloat direcAttQua = 0.5;
+
+// CANDEEIRO - FOCO
+
+GLint luzR2 = 1; // 'R'
+GLint luzG2 = 1; // 'G'
+GLint luzB2 = 1; // 'B'
+
+GLint   candeeiro = 1;				  // 'T'  
+GLfloat intensidade_candeeiro = 0.7;  // 'I'  
+GLfloat localPos[4] = {0.0, 3.5, 2.5, 1.0};
+GLfloat localDir[] = { 0, 0, -1, 0};
+GLfloat localCorAmb[4] = { 0, 0, 0, 0.0 };
+GLfloat localCorDif[4] = { luzR2, luzG2, luzB2, 1.0 };
+GLfloat localCorEsp[4] = { luzR2, luzG2, luzB2, 1.0 };
+GLfloat	aberturaFoco = 10.0;    //.. angulo inicial do foco
+GLfloat	anguloINC = 3.0;		//.. incremento
+GLfloat	anguloMIN = 3.0;		//.. minimo
+GLfloat	anguloMAX = 70.0;		//.. maximo
+
+GLfloat quadS = 5.0;
+GLint material = 1;
+
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+
 // INIT
+void initLights(void) {
+
+	// Direccional - Sol
+	glLightfv(GL_LIGHT0, GL_POSITION, direcVec);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, direcCorAmb);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, direcCorDif);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, direcCorEsp);
+
+	// Foco - Candeeiro
+	glLightfv(GL_LIGHT1, GL_POSITION, localPos);
+	glLightfv(GL_LIGHT1, GL_AMBIENT, localCorAmb);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, localCorDif);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, localCorEsp);
+	//glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0.2);
+
+	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, aberturaFoco);
+	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, localDir);
+	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 2.0);
+
+}
 void initTextures() {
 
 	// PAREDE
 	glGenTextures(1, &texture[0]);
 	glBindTexture(GL_TEXTURE_2D, texture[0]);
 	imag.LoadBmpFile("pedra.bmp");
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -85,7 +154,7 @@ void initTextures() {
 	glGenTextures(1, &texture[1]);
 	glBindTexture(GL_TEXTURE_2D, texture[1]);
 	imag.LoadBmpFile("madeira.bmp");
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -99,7 +168,7 @@ void initTextures() {
 	glGenTextures(1, &texture[2]);
 	glBindTexture(GL_TEXTURE_2D, texture[2]);
 	imag.LoadBmpFile("colorida.bmp");
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -113,7 +182,7 @@ void initTextures() {
 	glGenTextures(1, &texture[3]);
 	glBindTexture(GL_TEXTURE_2D, texture[3]);
 	imag.LoadBmpFile("metal.bmp");
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -126,11 +195,18 @@ void initTextures() {
 }
 void inicializa(void) {
 
-	glClearColor(WHITE);		// Apagar
-	glShadeModel(GL_SMOOTH);	// Interpolacao de cores	
-	initTextures();
+	glClearColor(BLACK);		// Apagar
 	glEnable(GL_DEPTH_TEST);	// Profundidade
+	glShadeModel(GL_SMOOTH);	// Interpolacao de cores	
+	glEnable(GL_NORMALIZE);
 
+	initTextures();
+	initLights();
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
+
+	initMaterials(22);
 }
 void drawText(char* string, GLfloat x, GLfloat y) {
 	glPushMatrix();
@@ -141,32 +217,72 @@ void drawText(char* string, GLfloat x, GLfloat y) {
 	glPopMatrix();
 }
 
+// ILUMINAÇÃO
+void iluminacao() {
+	// sol
+	if (dia) glEnable(GL_LIGHT0);
+	else glDisable(GL_LIGHT0);
+
+	// candeeiro
+	if (candeeiro) glEnable(GL_LIGHT1);
+	else glDisable(GL_LIGHT1);
+}
+void updateLuz() {
+	localCorAmb[0] = luzR2 * intensidade_candeeiro;
+	localCorAmb[1] = luzG2 * intensidade_candeeiro;
+	localCorAmb[2] = luzB2 * intensidade_candeeiro;
+	localCorDif[0] = luzR2 * intensidade_candeeiro;
+	localCorDif[1] = luzG2 * intensidade_candeeiro;
+	localCorDif[2] = luzB2 * intensidade_candeeiro;
+	localCorEsp[0] = luzR2 * intensidade_candeeiro;
+	localCorEsp[1] = luzG2 * intensidade_candeeiro;
+	localCorEsp[2] = luzB2 * intensidade_candeeiro;
+
+	glLightfv(GL_LIGHT1, GL_AMBIENT, localCorAmb);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, localCorDif);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, localCorEsp);
+}
+
 // DRAWING
+void drawChao() {
+	//initMaterials(material);
+	glPushMatrix();
+		glTranslatef(0, -0.15, 0);
+		glNormal3f(0, 1, 0);   // virado para cima
+		glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, 0.0f);  	 glVertex3i(-xC, 0, -xC);
+			glTexCoord2f(1.0f, 0.0f); 	 glVertex3i(-xC, 0, xC);
+			glTexCoord2f(1.0f, 1.0f);    glVertex3i(xC, 0, xC);
+			glTexCoord2f(0.0f, 1.0f);    glVertex3i(xC, 0, -xC);
+		glEnd();
+	glPopMatrix();
+}
 void drawEixos() {
 	// Eixo X
 	glColor4f(1.0, 0.0, 0.0, 1.0);
 	glBegin(GL_LINES);
-	glVertex3i(0, 0, 0);
-	glVertex3i(10, 0, 0);
+		glVertex3i(0, 0, 0);
+		glVertex3i(10, 0, 0);
 	glEnd();
 	// Eixo Y
 	glColor4f(0.0, 1.0, 0.0, 1.0);
 	glBegin(GL_LINES);
-	glVertex3i(0, 0, 0);
-	glVertex3i(0, 10, 0);
+		glVertex3i(0, 0, 0);
+		glVertex3i(0, 10, 0);
 	glEnd();
 	// Eixo Z
 	glColor4f(0.0, 0.0, 1.0, 1.0);
 	glBegin(GL_LINES);
-	glVertex3i(0, 0, 0);
-	glVertex3i(0, 0, 10);
+		glVertex3i(0, 0, 0);
+		glVertex3i(0, 0, 10);
 	glEnd();
 }
 void drawObservador() {
+
 	glColor4f(GREEN, 1.0);
 	glPushMatrix();
-	glTranslatef(obsP[0], obsP[1], obsP[2]);
-	glutSolidCube(1);
+		glTranslatef(obsP[0], obsP[1], obsP[2]);
+		glutSolidCube(1);
 	glPopMatrix();
 }
 void drawCube(float tam, GLfloat color[3]) {
@@ -297,50 +413,42 @@ void drawCube(float tam, GLfloat color[3]) {
 	glTexCoordPointer(2, GL_FLOAT, 0, tcube);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	//glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, cima);
-	//glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, baixo);
-	//glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, frente);
-	//glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, tras);
-	//glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, esquerda);
-	//glBindTexture(GL_TEXTURE_2D, texture[1]);
 	glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, direita);
-
-	//glDisable(GL_TEXTURE_2D);
 
 }
 void drawMacaneta() {
 
 	glPushMatrix();
-	glTranslatef(1.76 * DOOR_TOP_SCALE_X * tam - 0.50 * tam, 1.525 * DOOR_TOP_SCALE_Y * tam, tam);
-	glRotatef(handle_angle, 0.0, 0.0, 1.0);
+		glTranslatef(1.76 * DOOR_TOP_SCALE_X * tam - 0.50 * tam, 1.525 * DOOR_TOP_SCALE_Y * tam, tam);
+		glRotatef(handle_angle, 0.0, 0.0, 1.0);
 
 	// EXTENSAO
-	glPushMatrix();
-	glTranslatef(-0.25, 0, 0.25 * 0.5);
-	glScalef(0.7, 0.25, 0.25);
-	drawCube(tam, COR_MACANETA);
-	glPopMatrix();
+		glPushMatrix();
+			glTranslatef(-0.25, 0, 0.25 * 0.5);
+			glScalef(0.7, 0.25, 0.25);
+			drawCube(tam, COR_MACANETA);
+		glPopMatrix();
 
-	// CABO
-	glPushMatrix();
-	glScalef(0.25, 0.25, 0.5);
-	drawCube(tam, COR_MACANETA);
-	glPopMatrix();
+		// CABO
+		glPushMatrix();
+			glScalef(0.25, 0.25, 0.5);
+			drawCube(tam, COR_MACANETA);
+		glPopMatrix();
 	glPopMatrix();
 }
 void drawPortaDoCao() {
 
 	glPushMatrix();
-	glTranslatef(4 * DOOR_BOTTOM_SCALE_X * tam, 2 * DOOR_BOTTOM_SCALE_Y * tam, 0);
-	glRotatef(dog_door_angle, 1.0, 0.0, 0.0);
-	glTranslatef(0, -DOOR_BOTTOM_SCALE_Y * tam, 0);
-	glScalef(DOOR_BOTTOM_SCALE_X * 2, DOOR_BOTTOM_SCALE_Y, DOOR_BOTTOM_SCALE_Z * 0.2);
-	drawCube(tam, COR_CAO);
+		glTranslatef(4 * DOOR_BOTTOM_SCALE_X * tam, 2 * DOOR_BOTTOM_SCALE_Y * tam, 0);
+		glRotatef(dog_door_angle, 1.0, 0.0, 0.0);
+		glTranslatef(0, -DOOR_BOTTOM_SCALE_Y * tam, 0);
+		glScalef(DOOR_BOTTOM_SCALE_X * 2, DOOR_BOTTOM_SCALE_Y, DOOR_BOTTOM_SCALE_Z * 0.2);
+		drawCube(tam, COR_CAO);
 	glPopMatrix();
 }
 void drawCuboDeBaixo(float pos_x) {
@@ -408,13 +516,16 @@ void drawDoor() {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texture[0]);
 		drawParede();
+		drawChao();
 	glDisable(GL_TEXTURE_2D);
 
+	// TAPETE
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texture[2]);
 		drawTapete();
 	glDisable(GL_TEXTURE_2D);
 
+	// CANDEEIRO
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texture[3]);
 		drawCandeeiro();
@@ -521,43 +632,55 @@ void display(void) {
 	gluLookAt(obsP[0], obsP[1], obsP[2], 0, 0, 0, 0, 1, 0);
 
 	// Objetos
-	drawEixos();
+	//initLights();
+	iluminacao();
+	//drawEixos();
 	drawDoor();
 
 	// ---------------------------------
 
-	// Mini-map
-	glViewport(-0.075 * wScreen, 0, 0.40 * wScreen, 0.40 * hScreen);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(-20, 20, -20, 20, -100, 100);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(0, 30, 0, 0, 0, 0, 0, 0, -1);
+	//// Mini-map
+	//glViewport(-0.075 * wScreen, 0, 0.40 * wScreen, 0.40 * hScreen);
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity();
+	//glOrtho(-20, 20, -20, 20, -100, 100);
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
+	//gluLookAt(0, 30, 0, 0, 0, 0, 0, 0, -1);
 
-	// Objectos
-	drawEixos();
-	drawObservador();
-	drawDoor();
+	////glEnable(GL_LIGHTING);
+	//// Objectos
+	//drawEixos();
+	//drawObservador();
+	//iluminacao();
+	//drawDoor();
 
-	// ---------------------------------
+	//// ---------------------------------
 
-	// Front-view only
-	glViewport(0.15 * wScreen, -0.05 * hScreen, 0.4 * wScreen, 0.4 * hScreen);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(-20, 20, -20, 20, -100, 100);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(3, 3, 6, 3, 3, 3, 0, 1, 0);
+	//// Front-view only
+	//glViewport(0.15 * wScreen, -0.05 * hScreen, 0.4 * wScreen, 0.4 * hScreen);
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity();
+	//glOrtho(-20, 20, -20, 20, -100, 100);
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
+	//gluLookAt(3, 3, 6, 3, 3, 3, 0, 1, 0);
 
-	drawEixos();
-	drawDoor();
-
+	////glEnable(GL_LIGHTING);
+	//drawEixos();
+	////iluminacao();
+	//drawDoor();
 
 	// Actualizacao
 	glutSwapBuffers();
 }
+void resize(int width, int height) {
+	wScreen = width;
+	hScreen = height;
+	glViewport(0, 0, wScreen, hScreen);
+	glutPostRedisplay();
+}
+
 
 // EVENTS
 void keyboard(unsigned char key, int x, int y) {
@@ -604,7 +727,53 @@ void keyboard(unsigned char key, int x, int y) {
 		tipoProjeccao = (tipoProjeccao + 1) % 2;
 		glutPostRedisplay();
 		break;
-		// Escape
+
+	// luz direccional
+	case 'a':
+	case 'A':
+		dia = !dia;
+		glutPostRedisplay();
+		break;
+
+	// luz candeeiro
+	case 't':
+	case 'T':
+		candeeiro = !candeeiro;
+		updateLuz();
+		glutPostRedisplay();
+		break;
+
+	//	// Iluminacao da sala
+	//	case 'i': case 'I':
+	//		intensidade_candeeiro = intensidade_candeeiro + 0.1;
+	//		if (intensidade_candeeiro > 1.1) intensidade_candeeiro = 0;
+	//		updateLuz();
+	//		glutPostRedisplay();
+	//		break;
+	//	case 'r':case 'R':
+	//		luzR2 = (luzR2 + 1) % 2;
+	//		updateLuz();
+	//		glutPostRedisplay();
+	//		break;
+	//	case 'g':case 'G':
+	//		luzG2 = (luzG2 + 1) % 2;
+	//		updateLuz();
+	//		glutPostRedisplay();
+	//		break;
+	//	case 'b':case 'B':
+	//		luzB2 = (luzB2 + 1) % 2;
+	//		updateLuz();
+	//		glutPostRedisplay();
+	//		break;
+
+	// Material
+	case 'm': case 'M':
+		material = (material + 1) % 18;
+		initMaterials(material);
+		glutPostRedisplay();
+		break;
+
+	// Escape
 	case 27:
 		exit(0);
 		break;
@@ -643,6 +812,7 @@ int main(int argc, char** argv) {
 	inicializa();
 
 	glutSpecialFunc(teclasNotAscii);
+	//glutReshapeFunc(resize);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 
