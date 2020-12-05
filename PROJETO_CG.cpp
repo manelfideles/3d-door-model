@@ -99,6 +99,9 @@ GLfloat	anguloMAX = 80.0;		//.. maximo
 GLfloat quadS = 5.0;
 GLint material = 1;
 
+// MALHA
+GLint dim = 64;
+
 // ------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------
@@ -387,12 +390,49 @@ void drawCube(float tam, GLfloat color[3]) {
 
 }
 void drawChao() {
-	initMaterials(16);
+
+	/*initMaterials(16);
 	glPushMatrix();
 		glTranslatef(tam * DOOR_TOP_SCALE_X, -0.1, 0);
 		glScalef(15, 0.2, 15);
 		drawCube(tam, COR_TRINCO);
+	glPopMatrix();*/
+
+	glEnable(GL_TEXTURE_2D);
+
+	initMaterials(16);
+	glBindTexture(GL_TEXTURE_2D, texture[0]);
+
+	int i, j;
+	float med_dim = (float)dim / 2;
+
+	glPushMatrix();
+		glTranslatef(-7, 0, -7);
+		glScalef(10, 0, 10);
+		glNormal3f(0, 1, 0);
+		glBegin(GL_QUADS);
+			for (i = 0; i < dim; i++) {
+				for (j = 0; j < dim; j++) {
+					// 1 - 0,0
+					glTexCoord2f((float)j / dim, (float)i / dim);
+					glVertex3d((float)j / med_dim, 0, (float)i / med_dim);
+
+					// 2 - 1,0
+					glTexCoord2f((float)(j + 1) / dim, (float)i / dim);
+					glVertex3d((float)(j + 1) / med_dim, 0, (float)i / med_dim);
+
+					// 3 - 1,1
+					glTexCoord2f((float)(j + 1) / dim, (float)(i + 1) / dim);
+					glVertex3d((float)(j + 1) / med_dim, 0, (float)(i + 1) / med_dim);
+
+					// 4 - 0,1
+					glTexCoord2f((float)j / dim, (float)(i + 1) / dim);
+					glVertex3d((float)j / med_dim, 0, (float)(i + 1) / med_dim);
+				}
+			}
+		glEnd();
 	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
 }
 void drawEixos() {
 	// Eixo X
@@ -524,8 +564,9 @@ void drawDoor() {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texture[0]);
 		drawParede();
-		drawChao();
 	glDisable(GL_TEXTURE_2D);
+
+	drawChao();
 
 	// TAPETE
 	glEnable(GL_TEXTURE_2D);
@@ -789,6 +830,7 @@ void keyboard(unsigned char key, int x, int y) {
 		glutPostRedisplay();
 		break;
 
+	// Foco
 	case 'q':
 	case 'Q':
 		aberturaFoco = aberturaFoco + anguloINC;
@@ -800,6 +842,21 @@ void keyboard(unsigned char key, int x, int y) {
 	case 'Z':
 		aberturaFoco = aberturaFoco - anguloINC;
 		if (aberturaFoco < anguloMIN) aberturaFoco = anguloMIN;
+		glutPostRedisplay();
+		break;
+
+	// dimensao da malha
+	case 'k':
+	case 'K':
+		dim = 2 * dim;
+		if (dim > 256) dim = 256;
+		glutPostRedisplay();
+		break;
+
+	case 'j':
+	case 'J':
+		dim = 0.5 * dim;
+		if (dim < 1) dim = 1;
 		glutPostRedisplay();
 		break;
 
