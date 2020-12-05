@@ -79,11 +79,6 @@ GLint luzG = 1; // 'G'
 GLint luzB = 1; // 'B'
 
 int dia = 0;
-GLfloat intensidade_direc = 0.7;
-GLfloat direcVec[4] = { 0.0, 1.0, 0.0, 0.0 };
-GLfloat direcCorAmb[4] = { 1, 1, 1, 1.0 };
-GLfloat direcCorDif[4] = { luzR, luzG, luzB, 1.0 };
-GLfloat direcCorEsp[4] = { luzR, luzG, luzB, 1.0 };
 GLfloat direcAttCon = 0.5;
 GLfloat direcAttLin = 0.5;
 GLfloat direcAttQua = 0.5;
@@ -96,15 +91,10 @@ GLint luzB2 = 1; // 'B'
 
 GLint   candeeiro = 1;				  // 'T'  
 GLfloat intensidade_candeeiro = 0.7;  // 'I'  
-GLfloat localPos[4] = {0.0, 3.5, 2.5, 1.0};
-GLfloat localDir[] = { 0, 0, -1, 0};
-GLfloat localCorAmb[4] = { 0, 0, 0, 0.0 };
-GLfloat localCorDif[4] = { luzR2, luzG2, luzB2, 1.0 };
-GLfloat localCorEsp[4] = { luzR2, luzG2, luzB2, 1.0 };
-GLfloat	aberturaFoco = 10.0;    //.. angulo inicial do foco
-GLfloat	anguloINC = 3.0;		//.. incremento
-GLfloat	anguloMIN = 3.0;		//.. minimo
-GLfloat	anguloMAX = 70.0;		//.. maximo
+GLfloat	aberturaFoco = 20.0;    //.. angulo inicial do foco
+GLfloat	anguloINC = 2.0;		//.. incremento
+GLfloat	anguloMIN = 2.0;		//.. minimo
+GLfloat	anguloMAX = 80.0;		//.. maximo
 
 GLfloat quadS = 5.0;
 GLint material = 1;
@@ -117,21 +107,34 @@ GLint material = 1;
 void initLights(void) {
 
 	// Direccional - Sol
+
+	GLfloat direcVec[4] = { 0, 1, 0, 0 };
+	GLfloat direcCorAmb[4] = { 1, 1, 1, 1 };
+	GLfloat direcCorDif[4] = { luzR, luzG, luzB, 1.0 };
+	GLfloat direcCorEsp[4] = { luzR, luzG, luzB, 1.0 };
+
 	glLightfv(GL_LIGHT0, GL_POSITION, direcVec);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, direcCorAmb);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, direcCorDif);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, direcCorEsp);
 
 	// Foco - Candeeiro
+
+	GLfloat localPos[4] = { 2.5, 8, 2, 1.0 };
+	GLfloat localDir[] = { 0, -1, 0, 0 };
+	GLfloat localCorAmb[4] = { intensidade_candeeiro, intensidade_candeeiro, intensidade_candeeiro, 1 };
+	GLfloat localCorDif[4] = { luzR2, luzG2, luzB2, 1 };
+	GLfloat localCorEsp[4] = { luzR2, luzG2, luzB2, 1 };
+
 	glLightfv(GL_LIGHT1, GL_POSITION, localPos);
 	glLightfv(GL_LIGHT1, GL_AMBIENT, localCorAmb);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, localCorDif);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, localCorEsp);
-	//glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 0.2);
-
 	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, aberturaFoco);
 	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, localDir);
-	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 2.0);
+	//glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 20.0);
+
+	//initMaterials(16);
 
 }
 void initTextures() {
@@ -201,12 +204,9 @@ void inicializa(void) {
 	glEnable(GL_NORMALIZE);
 
 	initTextures();
-	initLights();
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	glEnable(GL_LIGHT1);
+	glEnable(GL_TEXTURE_2D);
 
-	initMaterials(22);
+	//initMaterials(22);
 }
 void drawText(char* string, GLfloat x, GLfloat y) {
 	glPushMatrix();
@@ -228,6 +228,10 @@ void iluminacao() {
 	else glDisable(GL_LIGHT1);
 }
 void updateLuz() {
+
+	GLfloat localCorAmb[4] = { 0, 0, 0, 1 };
+	GLfloat localCorDif[4] = { luzR2, luzG2, luzB2, 1 };
+	GLfloat localCorEsp[4] = { luzR2, luzG2, luzB2, 1 };
 	localCorAmb[0] = luzR2 * intensidade_candeeiro;
 	localCorAmb[1] = luzG2 * intensidade_candeeiro;
 	localCorAmb[2] = luzB2 * intensidade_candeeiro;
@@ -241,53 +245,14 @@ void updateLuz() {
 	glLightfv(GL_LIGHT1, GL_AMBIENT, localCorAmb);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, localCorDif);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, localCorEsp);
+
 }
 
 // DRAWING
-void drawChao() {
-	//initMaterials(material);
-	glPushMatrix();
-		glTranslatef(0, -0.15, 0);
-		glNormal3f(0, 1, 0);   // virado para cima
-		glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 0.0f);  	 glVertex3i(-xC, 0, -xC);
-			glTexCoord2f(1.0f, 0.0f); 	 glVertex3i(-xC, 0, xC);
-			glTexCoord2f(1.0f, 1.0f);    glVertex3i(xC, 0, xC);
-			glTexCoord2f(0.0f, 1.0f);    glVertex3i(xC, 0, -xC);
-		glEnd();
-	glPopMatrix();
-}
-void drawEixos() {
-	// Eixo X
-	glColor4f(1.0, 0.0, 0.0, 1.0);
-	glBegin(GL_LINES);
-		glVertex3i(0, 0, 0);
-		glVertex3i(10, 0, 0);
-	glEnd();
-	// Eixo Y
-	glColor4f(0.0, 1.0, 0.0, 1.0);
-	glBegin(GL_LINES);
-		glVertex3i(0, 0, 0);
-		glVertex3i(0, 10, 0);
-	glEnd();
-	// Eixo Z
-	glColor4f(0.0, 0.0, 1.0, 1.0);
-	glBegin(GL_LINES);
-		glVertex3i(0, 0, 0);
-		glVertex3i(0, 0, 10);
-	glEnd();
-}
-void drawObservador() {
-
-	glColor4f(GREEN, 1.0);
-	glPushMatrix();
-		glTranslatef(obsP[0], obsP[1], obsP[2]);
-		glutSolidCube(1);
-	glPopMatrix();
-}
 void drawCube(float tam, GLfloat color[3]) {
 
 	//glEnable(GL_TEXTURE_2D);
+	//initMaterials(16);
 
 	GLfloat vcube[] = {
 		// Esquerda
@@ -421,8 +386,44 @@ void drawCube(float tam, GLfloat color[3]) {
 	glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_INT, direita);
 
 }
-void drawMacaneta() {
+void drawChao() {
+	initMaterials(16);
+	glPushMatrix();
+		glTranslatef(tam * DOOR_TOP_SCALE_X, -0.1, 0);
+		glScalef(15, 0.2, 15);
+		drawCube(tam, COR_TRINCO);
+	glPopMatrix();
+}
+void drawEixos() {
+	// Eixo X
+	glColor4f(1.0, 0.0, 0.0, 1.0);
+	glBegin(GL_LINES);
+		glVertex3i(0, 0, 0);
+		glVertex3i(10, 0, 0);
+	glEnd();
+	// Eixo Y
+	glColor4f(0.0, 1.0, 0.0, 1.0);
+	glBegin(GL_LINES);
+		glVertex3i(0, 0, 0);
+		glVertex3i(0, 10, 0);
+	glEnd();
+	// Eixo Z
+	glColor4f(0.0, 0.0, 1.0, 1.0);
+	glBegin(GL_LINES);
+		glVertex3i(0, 0, 0);
+		glVertex3i(0, 0, 10);
+	glEnd();
+}
+void drawObservador() {
 
+	glColor4f(GREEN, 1.0);
+	glPushMatrix();
+		glTranslatef(obsP[0], obsP[1], obsP[2]);
+		glutSolidCube(1);
+	glPopMatrix();
+}
+void drawMacaneta() {
+	initMaterials(16);
 	glPushMatrix();
 		glTranslatef(1.76 * DOOR_TOP_SCALE_X * tam - 0.50 * tam, 1.525 * DOOR_TOP_SCALE_Y * tam, tam);
 		glRotatef(handle_angle, 0.0, 0.0, 1.0);
@@ -442,7 +443,7 @@ void drawMacaneta() {
 	glPopMatrix();
 }
 void drawPortaDoCao() {
-
+	//initMaterials(16);
 	glPushMatrix();
 		glTranslatef(4 * DOOR_BOTTOM_SCALE_X * tam, 2 * DOOR_BOTTOM_SCALE_Y * tam, 0);
 		glRotatef(dog_door_angle, 1.0, 0.0, 0.0);
@@ -452,6 +453,7 @@ void drawPortaDoCao() {
 	glPopMatrix();
 }
 void drawCuboDeBaixo(float pos_x) {
+	initMaterials(material);
 	glPushMatrix();
 		glTranslatef(pos_x, DOOR_BOTTOM_SCALE_Y * tam, 0);
 		glScalef(DOOR_BOTTOM_SCALE);
@@ -459,25 +461,31 @@ void drawCuboDeBaixo(float pos_x) {
 	glPopMatrix();
 }
 void drawParteDeCima() {
-	glTranslatef(DOOR_TOP_SCALE_X * tam, 2 * DOOR_BOTTOM_SCALE_Y * tam + DOOR_TOP_SCALE_Y * tam, 0);
-	glScalef(DOOR_TOP_SCALE);
-	drawCube(tam, COR_PORTA);
+	initMaterials(material);
+	glPushMatrix();
+		glTranslatef(DOOR_TOP_SCALE_X * tam, 2 * DOOR_BOTTOM_SCALE_Y * tam + DOOR_TOP_SCALE_Y * tam, 0);
+		glScalef(DOOR_TOP_SCALE);
+		drawCube(tam, COR_PORTA);
+	glPopMatrix();
 }
 void drawTapete() {
+	initMaterials(16);
 	glPushMatrix();
-		glTranslatef(tam * DOOR_TOP_SCALE_X, 0, DOOR_BOTTOM_SCALE_Z * 3);
+		glTranslatef(tam * DOOR_TOP_SCALE_X, 0.5*trinco_larg, DOOR_BOTTOM_SCALE_Z * 3);
 		glScalef(tam * DOOR_TOP_SCALE_X, trinco_larg, tam * 0.75 * DOOR_TOP_SCALE_X);
 		drawCube(tam, COR_TRINCO);
 	glPopMatrix();
 }
 void drawCandeeiro() {
+	initMaterials(16);
 	glPushMatrix();
-		glTranslatef(DOOR_TOP_SCALE_X * tam, 2.95 * DOOR_TOP_SCALE_Y * tam, tam * 1.25);
+		glTranslatef(2.5, 8, 2);
 		glScalef(trinco_larg * 5, trinco_larg * 2, 1.25);
 		drawCube(tam, COR_TRINCO);
 	glPopMatrix();
 }
 void drawTrinco(float comp, float larg) {
+	initMaterials(16);
 	glPushMatrix();
 		glTranslatef(trinco_pos, 1.35 * DOOR_TOP_SCALE_Y * tam, DOOR_TOP_SCALE_Z * tam + larg * tam);
 		glRotatef(trinco_angle, 1.0, 0.0, 0.0);
@@ -497,7 +505,7 @@ void drawTrinco(float comp, float larg) {
 	glPopMatrix();
 }
 void drawParede() {
-
+	initMaterials(16);
 	glPushMatrix();
 		glTranslatef((DOOR_TOP_SCALE_X + 0.55) * tam, 2.95 * DOOR_TOP_SCALE_Y * tam, 0);
 		glScalef(DOOR_TOP_SCALE_X + DOOR_TOP_SCALE_Z + 0.15, DOOR_TOP_SCALE_Z, DOOR_TOP_SCALE_Z);
@@ -632,44 +640,46 @@ void display(void) {
 	gluLookAt(obsP[0], obsP[1], obsP[2], 0, 0, 0, 0, 1, 0);
 
 	// Objetos
-	//initLights();
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
+	initLights();
 	iluminacao();
 	//drawEixos();
 	drawDoor();
 
 	// ---------------------------------
 
-	//// Mini-map
-	//glViewport(-0.075 * wScreen, 0, 0.40 * wScreen, 0.40 * hScreen);
-	//glMatrixMode(GL_PROJECTION);
-	//glLoadIdentity();
-	//glOrtho(-20, 20, -20, 20, -100, 100);
-	//glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
-	//gluLookAt(0, 30, 0, 0, 0, 0, 0, 0, -1);
+	// Mini-map
+	glViewport(-0.075 * wScreen, 0, 0.40 * wScreen, 0.40 * hScreen);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-20, 20, -20, 20, -100, 100);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(0, 30, 0, 0, 0, 0, 0, 0, -1);
 
-	////glEnable(GL_LIGHTING);
-	//// Objectos
+	// Objectos
 	//drawEixos();
-	//drawObservador();
-	//iluminacao();
-	//drawDoor();
+	drawObservador();
+	iluminacao();
+	drawDoor();
 
 	//// ---------------------------------
 
-	//// Front-view only
-	//glViewport(0.15 * wScreen, -0.05 * hScreen, 0.4 * wScreen, 0.4 * hScreen);
-	//glMatrixMode(GL_PROJECTION);
-	//glLoadIdentity();
-	//glOrtho(-20, 20, -20, 20, -100, 100);
-	//glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
-	//gluLookAt(3, 3, 6, 3, 3, 3, 0, 1, 0);
+	// Front-view only
+	glViewport(0.15 * wScreen, -0.05 * hScreen, 0.4 * wScreen, 0.4 * hScreen);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(-20, 20, -20, 20, -100, 100);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(3, 3, 6, 3, 3, 3, 0, 1, 0);
 
-	////glEnable(GL_LIGHTING);
+	//glEnable(GL_LIGHTING);
 	//drawEixos();
-	////iluminacao();
-	//drawDoor();
+	iluminacao();
+	drawDoor();
 
 	// Actualizacao
 	glutSwapBuffers();
@@ -732,6 +742,7 @@ void keyboard(unsigned char key, int x, int y) {
 	case 'a':
 	case 'A':
 		dia = !dia;
+		//iluminacao();
 		glutPostRedisplay();
 		break;
 
@@ -743,33 +754,52 @@ void keyboard(unsigned char key, int x, int y) {
 		glutPostRedisplay();
 		break;
 
-	//	// Iluminacao da sala
-	//	case 'i': case 'I':
-	//		intensidade_candeeiro = intensidade_candeeiro + 0.1;
-	//		if (intensidade_candeeiro > 1.1) intensidade_candeeiro = 0;
-	//		updateLuz();
-	//		glutPostRedisplay();
-	//		break;
-	//	case 'r':case 'R':
-	//		luzR2 = (luzR2 + 1) % 2;
-	//		updateLuz();
-	//		glutPostRedisplay();
-	//		break;
-	//	case 'g':case 'G':
-	//		luzG2 = (luzG2 + 1) % 2;
-	//		updateLuz();
-	//		glutPostRedisplay();
-	//		break;
-	//	case 'b':case 'B':
-	//		luzB2 = (luzB2 + 1) % 2;
-	//		updateLuz();
-	//		glutPostRedisplay();
-	//		break;
+		// Iluminacao da sala
+		case 'i':
+		case 'I':
+			intensidade_candeeiro += 0.1;
+			printf("intensidade candeeiro: %.2f\n", intensidade_candeeiro);
+			if (intensidade_candeeiro > 1.1) intensidade_candeeiro = 0;
+			updateLuz();
+			glutPostRedisplay();
+			break;
+		case 'r':
+		case 'R':
+			luzR2 = (luzR2 + 1) % 2;
+			updateLuz();
+			glutPostRedisplay();
+			break;
+		case 'g':
+		case 'G':
+			luzG2 = (luzG2 + 1) % 2;
+			updateLuz();
+			glutPostRedisplay();
+			break;
+		case 'b':
+		case 'B':
+			luzB2 = (luzB2 + 1) % 2;
+			updateLuz();
+			glutPostRedisplay();
+			break;
 
-	// Material
+	// Material da porta
 	case 'm': case 'M':
 		material = (material + 1) % 18;
 		initMaterials(material);
+		glutPostRedisplay();
+		break;
+
+	case 'q':
+	case 'Q':
+		aberturaFoco = aberturaFoco + anguloINC;
+		if (aberturaFoco > anguloMAX) aberturaFoco = anguloMAX;
+		glutPostRedisplay();
+		break;
+
+	case 'z':
+	case 'Z':
+		aberturaFoco = aberturaFoco - anguloINC;
+		if (aberturaFoco < anguloMIN) aberturaFoco = anguloMIN;
 		glutPostRedisplay();
 		break;
 
@@ -782,12 +812,12 @@ void keyboard(unsigned char key, int x, int y) {
 void teclasNotAscii(int key, int x, int y) {
 
 	// observador pode andar para cima e para baixo (setas cima / baixo )
-	if (key == GLUT_KEY_UP)   obsP[1] = (obsP[1] + 0.1);
-	if (key == GLUT_KEY_DOWN) obsP[1] = (obsP[1] - 0.1);
+	if (key == GLUT_KEY_UP)   obsP[1] = (obsP[1] + 0.05);
+	if (key == GLUT_KEY_DOWN) obsP[1] = (obsP[1] - 0.05);
 
 	// observador pode andar à volta da cena  (setas esquerda / direita)
-	if (key == GLUT_KEY_LEFT)  aVisao = (aVisao + 0.1);
-	if (key == GLUT_KEY_RIGHT) aVisao = (aVisao - 0.1);
+	if (key == GLUT_KEY_LEFT)  aVisao = (aVisao + 0.05);
+	if (key == GLUT_KEY_RIGHT) aVisao = (aVisao - 0.05);
 
 	// limita altura
 	if (obsP[1] > yC)   obsP[1] = yC;

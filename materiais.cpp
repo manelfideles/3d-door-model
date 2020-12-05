@@ -100,7 +100,7 @@ void initMaterials(int material) {
 		glMaterialfv(GL_FRONT, GL_SPECULAR, redPlasticSpec);
 		glMaterialf(GL_FRONT, GL_SHININESS, redPlasticCoef);
 		break;
-	case 16: //……………………………………………………………………………………………yellowPlastic
+	case 16: //……………………………………………………………………………………………whitePlastic
 		glMaterialfv(GL_FRONT, GL_AMBIENT, whitePlasticAmb);
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, whitePlasticDif);
 		glMaterialfv(GL_FRONT, GL_SPECULAR, whitePlasticSpec);
