@@ -202,6 +202,7 @@ void initTextures() {
 void inicializa(void) {
 
 	glClearColor(BLACK);		// Apagar
+	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);	// Profundidade
 	glShadeModel(GL_SMOOTH);	// Interpolacao de cores	
 	glEnable(GL_NORMALIZE);
@@ -560,6 +561,8 @@ void drawParede() {
 }
 void drawDoor() {
 
+	glBlendFunc(GL_ONE, GL_ZERO);
+
 	// PAREDE
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texture[0]);
@@ -590,9 +593,6 @@ void drawDoor() {
 			drawMacaneta();
 		glDisable(GL_TEXTURE_2D);
 
-		// transparente
-		drawPortaDoCao();
-
 		// PORTA
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, texture[1]);
@@ -600,6 +600,11 @@ void drawDoor() {
 			drawCuboDeBaixo(DOOR_BOTTOM_SCALE_X * tam);
 			drawParteDeCima();
 		glDisable(GL_TEXTURE_2D);
+
+		// transparente
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		drawPortaDoCao();
+
 	glPopMatrix();
 }
 
